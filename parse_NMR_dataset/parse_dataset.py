@@ -7,6 +7,7 @@ author: Norm1 <norm@normandcyr.com>
 """
 
 import re
+import pdfkit
 import argparse
 import numpy as np
 import pandas as pd
@@ -182,6 +183,9 @@ def parse_arguments():
         "--xmin", default=-5, help="specify the minimum ppm to report", type=float,
     )
     parser.add_argument(
+        "--pdf", action="store_true", help="generate a PDF report",
+    )
+    parser.add_argument(
         "-v", "--version", action="version", version="%(prog)s " + _version.__version__,
     )
     args = parser.parse_args()
@@ -216,7 +220,23 @@ def main():
                 )
                 pass
 
-    make_dataset_html.build_html(dataset_path, dataset_info)
+    print("Generating a HTML report")
+    html_filename = make_dataset_html.build_html(dataset_path, dataset_info)
+
+    if args.pdf:
+        print("Generating a PDF report.")
+
+        options = {
+            "page-size": "Letter",
+            "margin-top": "1.0in",
+            "margin-right": "1.0in",
+            "margin-bottom": "1.0in",
+            "margin-left": "1.0in",
+            "encoding": "UTF-8",
+            "custom-header": [("Accept-Encoding", "gzip")],
+            "quiet": "",
+        }
+        pdfkit.from_file(html_filename, html_filename[:-5] + ".pdf", options=options)
 
 
 if __name__ == "__main__":

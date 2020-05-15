@@ -11,6 +11,9 @@ def build_html(dataset_path, dataset_info):
     template = env.get_template("data.html")
 
     dataset_name = dataset_path.parts[-1]
-    filename = dataset_name + ".html"
-    with open(filename, "w") as f:
+    html_filename = dataset_name + ".html"
+
+    with open(html_filename, "w") as f:
         f.write(template.render(dataset_info=dataset_info, dataset_name=dataset_name))
+
+    return html_filename
