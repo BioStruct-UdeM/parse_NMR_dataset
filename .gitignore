@@ -21,8 +21,9 @@ __pycache__
 # outputs
 *.html
 *.json
+*.png
+*.pdf
 !parse_NMR_dataset/templates/*.html
 
 # Test data
 test_data
-*.png
