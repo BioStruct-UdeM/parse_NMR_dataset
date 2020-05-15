@@ -9,9 +9,11 @@ author: Norm1 <norm@normandcyr.com>
 import re
 import argparse
 import numpy as np
+import pandas as pd
 import nmrglue as ng
 from pathlib import Path
 from datetime import date
+
 # from pprint import pprint
 import matplotlib.pyplot as plt
 from parse_NMR_dataset import _version
@@ -77,19 +79,28 @@ def parse_general_acquisition_parameters(all_dimension_parameters, nb_dimensions
     return general_acquisition_parameters
 
 
-def plot_data(x_ppm, pdata, experiment_number):
+def plot_data(df_1D_data, experiment_number, dataset_name):
 
     png_plot_filename = "plot_1d_exp{}.png".format(experiment_number.parts[-1])
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(x_ppm, pdata, color="blue", linestyle="solid", linewidth=2)
+    ax.plot(
+        df_1D_data.chemical_shift,
+        df_1D_data.intensity,
+        color="blue",
+        linestyle="solid",
+        linewidth=2,
+    )
 
     # decorate axes
     ax.set_yticklabels([])
-    ax.set_title("1D Spectrum")
+    ax.set_title(dataset_name + "-" + experiment_number.parts[-1])
     ax.set_xlabel("1H, ppm")
-    ax.set_xlim(x_ppm.max(), x_ppm.min())
+    ax.set_xlim(
+        df_1D_data.chemical_shift.max() + 0.1, df_1D_data.chemical_shift.min() - 0.1
+    )
+    ax.set_ylabel("intensity")
 
     # save the figure
     fig.savefig(png_plot_filename)
@@ -97,7 +108,9 @@ def plot_data(x_ppm, pdata, experiment_number):
     return png_plot_filename
 
 
-def build_experiment_information(dataset_info, experiment_number):
+def build_experiment_information(
+    dataset_info, experiment_number, dataset_name, x_min, x_max
+):
 
     dic, data, pdata = load_experiment_data(experiment_number)
     acqu_list, nb_dimensions = determine_nb_dimensions(dic)
@@ -127,9 +140,14 @@ def build_experiment_information(dataset_info, experiment_number):
         x_ppm = (
             np.arange(len(pdata), 0, -1) * (dic["acqus"]["SW"] / len(pdata))
         ) + dic["procs"]["ABSF2"]
+        df_1D_data_full = pd.DataFrame({"chemical_shift": x_ppm, "intensity": pdata})
+        df_1D_data = df_1D_data_full[
+            (df_1D_data_full["chemical_shift"] >= x_min)
+            & (df_1D_data_full["chemical_shift"] <= x_max)
+        ]
 
         acquisition_parameters["png_plot_filename"] = plot_data(
-            x_ppm, pdata, experiment_number
+            df_1D_data, experiment_number, dataset_name
         )
 
     return acquisition_parameters
@@ -158,6 +176,12 @@ def parse_arguments():
         type=Path,
     )
     parser.add_argument(
+        "--xmax", default=24, help="specify the maximum ppm to report", type=float,
+    )
+    parser.add_argument(
+        "--xmin", default=-5, help="specify the minimum ppm to report", type=float,
+    )
+    parser.add_argument(
         "-v", "--version", action="version", version="%(prog)s " + _version.__version__,
     )
     args = parser.parse_args()
@@ -170,14 +194,16 @@ def main():
     args = parse_arguments()
 
     dataset_path = args.dataset_path
-
-    dataset_info = {"dataset name": str(dataset_path.parts[-1]), "experiments": []}
+    x_max = args.xmax
+    x_min = args.xmin
+    dataset_name = dataset_path.parts[-1]
+    dataset_info = {"dataset name": dataset_name, "experiments": []}
 
     for experiment_number in dataset_path.iterdir():
         if experiment_number.is_dir():
             try:
                 acquisition_parameters = build_experiment_information(
-                    dataset_info, experiment_number
+                    dataset_info, experiment_number, dataset_name, x_min, x_max
                 )
                 dataset_info = build_dataset_dict(
                     dataset_info, experiment_number, acquisition_parameters

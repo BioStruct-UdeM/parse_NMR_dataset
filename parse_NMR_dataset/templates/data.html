@@ -7,85 +7,97 @@
   </h1>
   Date: {{ dataset_info["experiments"][0]["acquisition parameters"]["general parameters"]["acquisition date"] }}
   <hr>
+
   <div class="container">
+
     {% for experiment in dataset_info["experiments"]|sort(attribute="experiment number")  %}
-      {% if (experiment["acquisition parameters"]["general parameters"]["number of dimensions"] == 1 and experiment["acquisition parameters"]["png_plot_filename"] != none) %}
-        <img src={{ experiment["acquisition parameters"]["png_plot_filename"] }} alt="1D spectrum">
-      {% endif %}
-      <table id="main_info" class="table table-hover table-sm">
-        <thead>
-          <tr>
-            <th scope="row" class="table-primary" colspan="2">Experiment number {{ experiment["experiment number"] }}</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% if experiment["acquisition parameters"]["general parameters"]["pulse program"] == "hsqcetfpf3gpsi" %}
-          <tr>
-            <th scope="row">Experiment type</th>
-            <td>15N-HSQC</td>
-          </tr>
-          <tr>
+      <div class="row align-items-start">
+
+        <div class="col-sm">
+        <table id="main_info" class="table table-hover table-sm">
+          <thead>
+            <tr>
+              <th scope="row" class="table-primary" colspan="2">Experiment number {{ experiment["experiment number"] }}</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% if experiment["acquisition parameters"]["general parameters"]["pulse program"] == "hsqcetfpf3gpsi" %}
+            <tr>
+              <th scope="row">Experiment type</th>
+              <td>15N-HSQC</td>
+            </tr>
+            <tr>
+          {% endif %}
+            <tr>
+              <th scope="row">Pulse program</th>
+              <td>{{ experiment["acquisition parameters"]["general parameters"]["pulse program"] }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Number of dimensions</th>
+              <td>{{ experiment["acquisition parameters"]["general parameters"]["number of dimensions"] }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Number of scans</th>
+              <td>{{ experiment["acquisition parameters"]["general parameters"]["number of scans"] }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Temperature</th>
+              <td>{{ experiment["acquisition parameters"]["general parameters"]["temperature"] }} °C</td>
+            </tr>
+            <tr>
+              <th scope="row" class="table-secondary" colspan="2">Direct dimension</th>
+            </tr>
+            <tr>
+              <th scope="row">Nucleus</th>
+              <td>{{ experiment["acquisition parameters"]["direct dimension parameters"]["nucleus"] }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Spectral width</th>
+              <td>{{ experiment["acquisition parameters"]["direct dimension parameters"]["spectral width"] }} ppm</td>
+            </tr>
+            <tr>
+              <th scope="row">Carrier offset</th>
+              <td>{{ experiment["acquisition parameters"]["direct dimension parameters"]["carrier offset"] }} ppm</td>
+            </tr>
+            <tr>
+              <th scope="row">Number of increments</th>
+              <td>{{ experiment["acquisition parameters"]["direct dimension parameters"]["number of increments"] }} points</td>
+            </tr>
+          {% if experiment["acquisition parameters"]["general parameters"]["number of dimensions"] > 1 %}
+            <tr>
+              <th scope="row" class="table-secondary" colspan="2">Indirect dimension</th>
+            </tr>
+            <tr>
+              <th scope="row">Nucleus</th>
+              <td>{{ experiment["acquisition parameters"]["indirect dimension parameters"]["nucleus"] }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Spectral width</th>
+              <td>{{ experiment["acquisition parameters"]["indirect dimension parameters"]["spectral width"] }} ppm</td>
+            </tr>
+            <tr>
+              <th scope="row">Carrier offset</th>
+              <td>{{ experiment["acquisition parameters"]["indirect dimension parameters"]["carrier offset"] }} ppm</td>
+            </tr>
+            <tr>
+              <th scope="row">Number of increments</th>
+              <td>{{ experiment["acquisition parameters"]["indirect dimension parameters"]["number of increments"] }} points</td>
+            </tr>
+          {% endif %}
+          </tbody>
+        </table>
+        <hr class="end_table">
+        </div>
+
+        {% if (experiment["acquisition parameters"]["general parameters"]["number of dimensions"] == 1 and experiment["acquisition parameters"]["png_plot_filename"] != none) %}
+        <div class="col-sm">
+          <img src={{ experiment["acquisition parameters"]["png_plot_filename"] }} alt="1D spectrum" class="img-fluid">
+        </div>
         {% endif %}
-          <tr>
-            <th scope="row">Pulse program</th>
-            <td>{{ experiment["acquisition parameters"]["general parameters"]["pulse program"] }}</td>
-          </tr>
-          <tr>
-            <th scope="row">Number of dimensions</th>
-            <td>{{ experiment["acquisition parameters"]["general parameters"]["number of dimensions"] }}</td>
-          </tr>
-          <tr>
-            <th scope="row">Number of scans</th>
-            <td>{{ experiment["acquisition parameters"]["general parameters"]["number of scans"] }}</td>
-          </tr>
-          <tr>
-            <th scope="row">Temperature</th>
-            <td>{{ experiment["acquisition parameters"]["general parameters"]["temperature"] }} °C</td>
-          </tr>
-          <tr>
-            <th scope="row" class="table-secondary" colspan="2">Direct dimension</th>
-          </tr>
-          <tr>
-            <th scope="row">Nucleus</th>
-            <td>{{ experiment["acquisition parameters"]["direct dimension parameters"]["nucleus"] }}</td>
-          </tr>
-          <tr>
-            <th scope="row">Spectral width</th>
-            <td>{{ experiment["acquisition parameters"]["direct dimension parameters"]["spectral width"] }} ppm</td>
-          </tr>
-          <tr>
-            <th scope="row">Carrier offset</th>
-            <td>{{ experiment["acquisition parameters"]["direct dimension parameters"]["carrier offset"] }} ppm</td>
-          </tr>
-          <tr>
-            <th scope="row">Number of increments</th>
-            <td>{{ experiment["acquisition parameters"]["direct dimension parameters"]["number of increments"] }} points</td>
-          </tr>
-        {% if experiment["acquisition parameters"]["general parameters"]["number of dimensions"] > 1 %}
-          <tr>
-            <th scope="row" class="table-secondary" colspan="2">Indirect dimension</th>
-          </tr>
-          <tr>
-            <th scope="row">Nucleus</th>
-            <td>{{ experiment["acquisition parameters"]["indirect dimension parameters"]["nucleus"] }}</td>
-          </tr>
-          <tr>
-            <th scope="row">Spectral width</th>
-            <td>{{ experiment["acquisition parameters"]["indirect dimension parameters"]["spectral width"] }} ppm</td>
-          </tr>
-          <tr>
-            <th scope="row">Carrier offset</th>
-            <td>{{ experiment["acquisition parameters"]["indirect dimension parameters"]["carrier offset"] }} ppm</td>
-          </tr>
-          <tr>
-            <th scope="row">Number of increments</th>
-            <td>{{ experiment["acquisition parameters"]["indirect dimension parameters"]["number of increments"] }} points</td>
-          </tr>
-        {% endif %}
-        </tbody>
-      </table>
-      <hr class="end_table">
+
+      </div>
     {% endfor %}
+
   </div>
 
 {% endblock %}
